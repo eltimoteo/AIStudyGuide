@@ -1,5 +1,5 @@
 import { generateStudyGuide, generateQuiz, getAvailableModels } from './api.js';
-import { createClient, signIn, signOut, getCurrentUser, saveStudyMaterial, getStudyMaterials } from './supabase.js';
+import { createClient, signInWithGoogle, signOut, getCurrentUser, saveStudyMaterial, getStudyMaterials } from './supabase.js';
 
 // DOM Elements
 const fileInput = document.getElementById('fileInput');
@@ -33,8 +33,7 @@ const supabaseKeyInput = document.getElementById('supabaseKey');
 // UI - Login
 const loginModal = document.getElementById('loginModal');
 const closeLogin = document.getElementById('closeLogin');
-const emailInput = document.getElementById('emailInput');
-const sendMagicLinkBtn = document.getElementById('sendMagicLinkBtn');
+const googleSignInBtn = document.getElementById('googleSignInBtn');
 
 const tabButtons = document.querySelectorAll('.tab-btn');
 const tabPanes = document.querySelectorAll('.tab-pane');
@@ -76,7 +75,7 @@ function setupEventListeners() {
 
     // Login
     closeLogin.addEventListener('click', () => loginModal.classList.add('hidden'));
-    sendMagicLinkBtn.addEventListener('click', handleLogin);
+    if (googleSignInBtn) googleSignInBtn.addEventListener('click', handleLogin);
 
     // Settings
     settingsBtn.addEventListener('click', () => settingsModal.classList.remove('hidden'));
@@ -155,18 +154,20 @@ function handleAuthClick() {
 }
 
 async function handleLogin() {
-    const email = emailInput.value;
-    if (!email) return showToast('Please enter an email');
+    const btn = document.getElementById('googleSignInBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Redirecting...';
 
-    sendMagicLinkBtn.textContent = 'Sending...';
     try {
-        await signIn(supabase, email);
-        showToast('Magic link sent! Check your email.');
-        loginModal.classList.add('hidden');
+        await signInWithGoogle(supabase);
+        // Supabase will redirect, so no need to show toast/close modal unless it fails immediately
     } catch (e) {
         showToast(`Login failed: ${e.message}`);
-    } finally {
-        sendMagicLinkBtn.textContent = 'Send Magic Link';
+        btn.disabled = false;
+        btn.innerHTML = `
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" style="width: 20px; height: 20px;">
+            Sign in with Google
+        `;
     }
 }
 

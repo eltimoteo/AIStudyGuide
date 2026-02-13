@@ -187,13 +187,18 @@
                     <span class="material-symbols-rounded">close</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <label for="emailInput">Email Address</label>
-                <input type="email" id="emailInput" placeholder="you@example.com">
-                <p class="helper-text">We'll send you a magic link to sign in.</p>
+            <div class="modal-body" style="text-align: center;">
+                <p style="margin-bottom: 24px; color: var(--text-muted);">Sign in to save your study guides and access
+                    them from any device.</p>
+                <button id="googleSignInBtn" class="btn btn-primary"
+                    style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
+                        style="width: 20px; height: 20px;">
+                    Sign in with Google
+                </button>
             </div>
-            <div class=" modal-footer">
-                <button id="sendMagicLinkBtn" class="btn btn-primary">Send Magic Link</button>
+            <div class="modal-footer" style="display: none;">
+                <!-- Footer removed as button is in body -->
             </div>
         </div>
     </div>

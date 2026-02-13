@@ -52,8 +52,27 @@ create policy "Users can delete their own study materials"
   using (auth.uid() = user_id);
 ```
 
-## 4. Auth Settings
-1.  Go to **Authentication** (icon looks like users) in the sidebar.
-2.  Go to **Providers** -> **Email**.
-3.  Ensure "Enable Email provider" is **ON**.
-4.  (Optional) Toggle "Confirm email" **OFF** if you want instant login without verifying email.
+## 4. Auth Settings (Google OAuth)
+1.  **Google Cloud Console**:
+    *   Go to [console.cloud.google.com](https://console.cloud.google.com/).
+    *   Create a New Project.
+    *   Go to **APIs & Services** > **OAuth consent screen**.
+    *   Select **External** and Create. Fill in app name, email, etc.
+    *   Go to **Credentials** > **Create Credentials** > **OAuth client ID**.
+    *   Application type: **Web application**.
+    *   **Authorized redirect URIs**:
+        *   Add: `https://<your-project-ref>.supabase.co/auth/v1/callback`
+        *   (Get this URL from Supabase Dashboard > Authentication > Providers > Google).
+    *   Copy the **Client ID** and **Client Secret**.
+
+2.  **Supabase Dashboard**:
+    *   Go to **Authentication** > **Providers**.
+    *   Select **Google**.
+    *   Paste the **Client ID** and **Client Secret**.
+    *   Turn **Enable Sign in with Google** ON.
+    *   Click **Save**.
+
+3.  **URL Configuration**:
+    *   Go to **Authentication** > **URL Configuration**.
+    *   Add your localhost (`http://localhost:8000`) and/or GitHub Pages URL (`https://<user>.github.io/<repo>`) to **Redirect URLs**.
+

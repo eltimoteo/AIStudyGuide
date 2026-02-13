@@ -9,13 +9,11 @@ export function createClient(supabaseUrl, supabaseKey) {
     return window.supabase.createClient(supabaseUrl, supabaseKey);
 }
 
-export async function signIn(client, email) {
-    // Magic link login
-    const { data, error } = await client.auth.signInWithOtp({
-        email: email,
+export async function signInWithGoogle(client) {
+    const { data, error } = await client.auth.signInWithOAuth({
+        provider: 'google',
         options: {
-            // For localhost handling, ideally this redirects back to current page
-            emailRedirectTo: window.location.href
+            redirectTo: window.location.origin
         }
     });
     if (error) throw error;
