@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Study Guide & Quiz Generator</title>
+    <meta name="description"
+        content="Upload your textbook PDF and get instant study guides and quizzes powered by Gemini AI.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-mesh"></div>
+
+    <header class="app-header">
+        <div class="logo" style="cursor: pointer;" onclick="window.location.reload()">
+            <span class="material-symbols-rounded">auto_stories</span>
+            <h1>Study<span class="gradient-text">Genius</span></h1>
+        </div>
+        <div class="header-controls">
+            <button id="authBtn" class="btn btn-secondary btn-sm hidden">Login</button>
+            <button id="dashboardBtn" class="btn btn-secondary btn-sm hidden">My Study Guides</button>
+            <button id="settingsBtn" class="icon-btn" aria-label="Settings">
+                <span class="material-symbols-rounded">settings</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Dashboard View (Hidden by default) -->
+        <section id="dashboardSection" class="dashboard-section hidden">
+            <div class="section-header">
+                <h2>My Saved Materials</h2>
+                <button id="backToUploadBtn" class="btn btn-secondary">
+                    <span class="material-symbols-rounded">add</span> New
+                </button>
+            </div>
+            <div id="savedItemsGrid" class="cards-grid">
+                <!-- Items injected here -->
+            </div>
+        </section>
+
+        <!-- Hero / Upload Section -->
+        <section id="uploadSection" class="upload-section">
+            <div class="hero-text">
+                <h2>Turn Textbooks into <br><span class="gradient-text">Mastery</span></h2>
+                <p>Upload a PDF chapter to generate a comprehensive study guide and test your knowledge with an
+                    interactive quiz.</p>
+            </div>
+
+            <div class="dropzone" id="dropzone">
+                <input type="file" id="fileInput" accept="application/pdf" hidden>
+                <div class="dropzone-content">
+                    <span class="material-symbols-rounded icon-lg">upload_file</span>
+                    <h3>Drop your PDF here</h3>
+                    <p>or click to browse</p>
+                    <div class="file-info" id="fileInfo"></div>
+                </div>
+            </div>
+
+            <button id="generateBtn" class="btn btn-primary" disabled>
+                <span class="material-symbols-rounded">auto_awesome</span>
+                Generate Study Material
+            </button>
+        </section>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p id="loadingText">Analyzing content with Gemini...</p>
+        </div>
+
+        <!-- Content Section -->
+        <section id="contentSection" class="content-section hidden">
+            <div class="content-header">
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="studyGuide">Study Guide</button>
+                    <button class="tab-btn" data-tab="quiz">Quiz</button>
+                </div>
+                <button id="saveContentBtn" class="btn btn-secondary hidden">
+                    <span class="material-symbols-rounded">save</span> Save
+                </button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Study Guide Tab -->
+                <div id="studyGuide" class="tab-pane active">
+                    <div class="card study-guide-content" id="studyGuideContent">
+                        <!-- Content will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Quiz Tab -->
+                <div id="quiz" class="tab-pane">
+                    <div class="quiz-container" id="quizContainer">
+                        <!-- Quiz will be injected here -->
+                    </div>
+                    <div class="quiz-results hidden" id="quizResults">
+                        <div class="score-card">
+                            <div class="score-circle">
+                                <span id="scoreValue">0%</span>
+                            </div>
+                            <h3>Knowledge Check</h3>
+                            <p id="scoreFeedback">Complete the quiz to get feedback.</p>
+                        </div>
+                        <div class="results-breakdown" id="resultsBreakdown"></div>
+                        <button id="retryQuizBtn" class="btn btn-secondary">Retry Quiz</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="close-btn" id="closeSettings">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h4>Gemini AI</h4>
+                <label for="apiKey">API Key</label>
+                <div class="input-group">
+                    <input type="password" id="apiKey" placeholder="Paste your API key here">
+                    <button class="icon-on-input" id="toggleApiKeyVisibility">
+                        <span class="material-symbols-rounded">visibility</span>
+                    </button>
+                </div>
+
+                <label for="modelSelect" style="margin-top: 16px; display: block;">AI Model</label>
+                <div class="input-group">
+                    <select id="modelSelect"
+                        style="width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white;">
+                        <option value="gemini-1.5-flash">gemini-1.5-flash (Default)</option>
+                    </select>
+                </div>
+
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 24px 0;">
+
+                <h4>Supabase (Data Storage)</h4>
+                <label for="supabaseUrl">Project URL</label>
+                <input type="text" id="supabaseUrl" placeholder="https://xyz.supabase.co" style="margin-bottom: 12px;">
+
+                <label for="supabaseKey">Anon Public Key</label>
+                <div class="input-group">
+                    <input type="password" id="supabaseKey" placeholder="eyJrh...">
+                </div>
+
+                <p class="helper-text">All keys stored locally in your browser.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="saveSettingsBtn" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Login / Sign Up</h3>
+                <button class="close-btn" id="closeLogin">
+                    <span class="material-symbols-rounded">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="emailInput">Email Address</label>
+                <input type="email" id="emailInput" placeholder="you@example.com">
+                <p class="helper-text">We'll send you a magic link to sign in.</p>
+            </div>
+            <div class=" modal-footer">
+                <button id="sendMagicLinkBtn" class="btn btn-primary">Send Magic Link</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
