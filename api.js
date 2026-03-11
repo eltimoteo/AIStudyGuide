@@ -10,8 +10,8 @@ export async function getAvailableModels(apiKey) {
             .map(m => m.name.replace('models/', ''));
 
         // Ensure the reliable flash model is present
-        if (!models.includes('gemini-1.5-flash-001')) {
-            models.unshift('gemini-1.5-flash-001');
+        if (!models.includes('gemini-1.5-flash')) {
+            models.unshift('gemini-1.5-flash');
         }
         return models;
     } catch (e) {
@@ -65,35 +65,65 @@ export async function generateQuiz(apiKey, model, text) {
     }
 }
 
-async function callGemini(apiKey, model, prompt) {
-    try {
-        // Default to a safe model if none provided
-        const safeModel = model || 'gemini-1.5-flash';
+async function callGemini(apiKey, model, prompt, retries = 3) {
+    const safeModel = model || 'gemini-1.5-flash';
+    // Ensure the model name has the models/ prefix if it doesn't already
+    const modelResource = safeModel.startsWith('models/') ? safeModel : `models/${safeModel}`;
 
-        const response = await fetch(`${BASE_URL}/${safeModel}:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: prompt
+    for (let attempt = 0; attempt < retries; attempt++) {
+        try {
+            // Determine the correct endpoint based on the model name format
+            // Most generation models now support generateContent via the v1beta endpoint
+            const endpoint = `${BASE_URL}/${modelResource}:generateContent?key=${apiKey}`;
+
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: prompt
+                        }]
                     }]
-                }]
-            })
-        });
+                })
+            });
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            const errorMessage = errorData.error?.message || response.statusText;
-            throw new Error(`API Error (${response.status}): ${errorMessage}`);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error?.message || response.statusText;
+                
+                // Handle rate limits automatically
+                if (response.status === 429 && attempt < retries - 1) {
+                    let delayMs = 15000; // default 15s fallback
+                    const match = errorMessage.match(/retry in (\d+(\.\d+)?)s/i);
+                    if (match) {
+                        // Add an extra second 
+                        delayMs = Math.ceil(parseFloat(match[1]) * 1000) + 1000;
+                    } else {
+                        delayMs = 15000 * (attempt + 1);
+                    }
+                    console.warn(`[Attempt ${attempt + 1}] Rate limited (429). Retrying in ${delayMs}ms...`, errorMessage);
+                    window.dispatchEvent(new CustomEvent('geminiRateLimit', { detail: { delayMs } }));
+                    await new Promise(r => setTimeout(r, delayMs));
+                    continue;
+                }
+                
+                throw new Error(`API Error (${response.status}): ${errorMessage}`);
+            }
+
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        } catch (error) {
+            if (attempt === retries - 1 || (!error.message.includes('429') && !error.message.includes('Failed to fetch'))) {
+                console.error('Gemini API Call Failed:', error);
+                throw error;
+            }
+            if (error.message.includes('Failed to fetch')) {
+                 window.dispatchEvent(new CustomEvent('geminiRateLimit', { detail: { delayMs: 3000 } }));
+                 await new Promise(r => setTimeout(r, 3000));
+            }
         }
-
-        const data = await response.json();
-        return data.candidates[0].content.parts[0].text;
-    } catch (error) {
-        console.error('Gemini API Call Failed:', error);
-        throw error;
     }
 }

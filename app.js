@@ -101,6 +101,14 @@ function setupEventListeners() {
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
+
+    window.addEventListener('geminiRateLimit', (e) => {
+        const seconds = Math.round(e.detail.delayMs / 1000);
+        const loadingText = document.getElementById('loadingText');
+        if (loadingText) {
+            loadingText.textContent = `API rate limit hit. Paused for ${seconds}s...`;
+        }
+    });
 }
 
 // Supabase Handling
@@ -154,6 +162,11 @@ function handleAuthClick() {
 }
 
 async function handleLogin() {
+    if (window.location.protocol === 'file:') {
+        showToast('Error: Please run via a local server (http://localhost:8000) as per README.');
+        return;
+    }
+
     const btn = document.getElementById('googleSignInBtn');
     btn.disabled = true;
     btn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px;"></div> Redirecting...';
@@ -327,6 +340,7 @@ async function handleGenerate() {
 
     uploadSection.classList.add('hidden');
     loadingState.classList.remove('hidden');
+    document.getElementById('loadingText').textContent = 'Analyzing content with Gemini...';
 
     try {
         // Serial requests to avoid rate limits
@@ -511,8 +525,14 @@ function saveSettings() {
         // Auto-fix URL: Add https:// if missing
         if (!supUrl.startsWith('http://') && !supUrl.startsWith('https://')) {
             supUrl = 'https://' + supUrl;
-            supabaseUrlInput.value = supUrl; // Update UI to reflect change
         }
+
+        // Auto-fix URL: Add .supabase.co if missing (common mistake: pasting just the project ID)
+        if (!supUrl.includes('.')) {
+            supUrl = supUrl + '.supabase.co';
+        }
+
+        supabaseUrlInput.value = supUrl; // Update UI to reflect change
 
         // Basic validation
         try {
