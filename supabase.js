@@ -63,3 +63,31 @@ export async function getStudyMaterials(client) {
     if (error) throw error;
     return data;
 }
+
+export async function deleteStudyMaterial(client, id) {
+    const { data: { user } } = await client.auth.getUser();
+    if (!user) throw new Error('User not logged in');
+
+    const { error } = await client
+        .from('study_materials')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id); // Extra safety check
+
+    if (error) throw error;
+}
+
+export async function renameStudyMaterial(client, id, newTitle) {
+    const { data: { user } } = await client.auth.getUser();
+    if (!user) throw new Error('User not logged in');
+
+    const { data, error } = await client
+        .from('study_materials')
+        .update({ title: newTitle })
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select();
+
+    if (error) throw error;
+    return data;
+}

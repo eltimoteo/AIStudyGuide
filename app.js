@@ -1,5 +1,5 @@
 import { generateStudyGuide, generateQuiz, getAvailableModels } from './api.js';
-import { createClient, signInWithGoogle, signOut, getCurrentUser, saveStudyMaterial, getStudyMaterials } from './supabase.js';
+import { createClient, signInWithGoogle, signOut, getCurrentUser, saveStudyMaterial, getStudyMaterials, deleteStudyMaterial, renameStudyMaterial } from './supabase.js';
 
 // DOM Elements
 const fileInput = document.getElementById('fileInput');
@@ -219,16 +219,49 @@ function renderDashboardItems(items) {
     }
 
     savedItemsGrid.innerHTML = items.map(item => `
-        <div class="item-card" onclick="loadItem('${item.id}')">
+        <div class="item-card" onclick="loadItem('${item.id}')" style="position: relative;">
             <h3>${item.title || 'Untitled'}</h3>
             <span class="item-date">${new Date(item.created_at).toLocaleDateString()}</span>
+            
+            <div class="item-actions" style="position: absolute; top: 16px; right: 16px; display: flex; gap: 8px;">
+                <button class="icon-btn" onclick="event.stopPropagation(); renameItem('${item.id}', '${item.title.replace(/'/g, "\\'")}')" title="Rename" style="padding: 4px; background: rgba(0,0,0,0.05);">
+                    <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
+                </button>
+                <button class="icon-btn" onclick="event.stopPropagation(); deleteItem('${item.id}')" title="Delete" style="padding: 4px; background: rgba(239,68,68,0.1); color: var(--error);">
+                    <span class="material-symbols-rounded" style="font-size: 18px;">delete</span>
+                </button>
+            </div>
         </div>
     `).join('');
 
-    // Attach event listeners manually if needed, or use global
+    // Attach event listeners manually
     window.loadItem = (id) => {
         const item = items.find(i => i.id === id);
         if (item) restoreSession(item);
+    };
+
+    window.deleteItem = async (id) => {
+        if (!confirm('Are you sure you want to delete this study guide? This cannot be undone.')) return;
+        try {
+            await deleteStudyMaterial(supabase, id);
+            showToast('Study guide deleted.');
+            showDashboard(); // Reload dashboard
+        } catch (e) {
+            showToast(`Failed to delete: ${e.message}`);
+        }
+    };
+
+    window.renameItem = async (id, currentTitle) => {
+        const newTitle = prompt('Enter a new title:', currentTitle);
+        if (newTitle === null || newTitle.trim() === '' || newTitle === currentTitle) return;
+        
+        try {
+            await renameStudyMaterial(supabase, id, newTitle.trim());
+            showToast('Study guide renamed.');
+            showDashboard(); // Reload dashboard
+        } catch (e) {
+            showToast(`Failed to rename: ${e.message}`);
+        }
     };
 }
 

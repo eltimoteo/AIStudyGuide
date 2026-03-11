@@ -150,7 +150,8 @@ h4 {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1600px; /* Expanded for full width usage */
+    width: 95%;
     margin: 40px auto;
     padding: 0 20px;
     min-height: calc(100vh - 100px);
