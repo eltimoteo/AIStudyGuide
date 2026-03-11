@@ -209,16 +209,18 @@ function renderDashboardItems(items) {
     }
 
     savedItemsGrid.innerHTML = items.map(item => `
-        <div class="item-card" onclick="loadItem('${item.id}')" style="position: relative;">
-            <h3>${item.title || 'Untitled'}</h3>
-            <span class="item-date">${new Date(item.created_at).toLocaleDateString()}</span>
+        <div class="item-card" onclick="loadItem('${item.id}')">
+            <div class="item-content">
+                <h3>${item.title || 'Untitled'}</h3>
+                <span class="item-date">${new Date(item.created_at).toLocaleDateString()}</span>
+            </div>
             
-            <div class="item-actions" style="position: absolute; top: 16px; right: 16px; display: flex; gap: 8px;">
-                <button class="icon-btn" onclick="event.stopPropagation(); renameItem('${item.id}', '${item.title.replace(/'/g, "\\'")}')" title="Rename" style="padding: 4px; background: rgba(0,0,0,0.05);">
-                    <span class="material-symbols-rounded" style="font-size: 18px;">edit</span>
+            <div class="item-actions" style="display: flex; gap: 8px;">
+                <button class="icon-btn" onclick="event.stopPropagation(); renameItem('${item.id}', '${item.title.replace(/'/g, "\\'")}')" title="Rename" style="padding: 6px; background: rgba(0,0,0,0.05);">
+                    <span class="material-symbols-rounded" style="font-size: 20px;">edit</span>
                 </button>
-                <button class="icon-btn" onclick="event.stopPropagation(); deleteItem('${item.id}')" title="Delete" style="padding: 4px; background: rgba(239,68,68,0.1); color: var(--error);">
-                    <span class="material-symbols-rounded" style="font-size: 18px;">delete</span>
+                <button class="icon-btn" onclick="event.stopPropagation(); deleteItem('${item.id}')" title="Delete" style="padding: 6px; background: rgba(239,68,68,0.1); color: var(--error);">
+                    <span class="material-symbols-rounded" style="font-size: 20px;">delete</span>
                 </button>
             </div>
         </div>
