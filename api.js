@@ -67,15 +67,10 @@ export async function generateQuiz(apiKey, model, text) {
 
 async function callGemini(apiKey, model, prompt, retries = 3) {
     const safeModel = model || 'gemini-1.5-flash';
-    // Remove 'models/' prefix if it accidentally got prepended to avoid 'models/models/'
-    const modelId = safeModel.replace(/^models\//, '');
 
     for (let attempt = 0; attempt < retries; attempt++) {
         try {
-            // Determine the correct endpoint based on the model name format
-            const endpoint = `${BASE_URL}/${modelId}:generateContent?key=${apiKey}`;
-
-            const response = await fetch(endpoint, {
+            const response = await fetch(`${BASE_URL}/${safeModel}:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
