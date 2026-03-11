@@ -16,7 +16,6 @@ const dashboardSection = document.getElementById('dashboardSection');
 const authBtn = document.getElementById('authBtn');
 const dashboardBtn = document.getElementById('dashboardBtn');
 const backToUploadBtn = document.getElementById('backToUploadBtn');
-const saveContentBtn = document.getElementById('saveContentBtn');
 const savedItemsGrid = document.getElementById('savedItemsGrid');
 
 // UI - Settings
@@ -69,7 +68,6 @@ function setupEventListeners() {
     authBtn.addEventListener('click', handleAuthClick);
     dashboardBtn.addEventListener('click', showDashboard);
     backToUploadBtn.addEventListener('click', showHome);
-    saveContentBtn.addEventListener('click', handleSaveContent);
 
     // Login
     closeLogin.addEventListener('click', () => loginModal.classList.add('hidden'));
@@ -128,13 +126,9 @@ function updateAuthUI() {
     if (currentUser) {
         authBtn.textContent = 'Logout';
         dashboardBtn.classList.remove('hidden');
-        if (!contentSection.classList.contains('hidden')) {
-            saveContentBtn.classList.remove('hidden');
-        }
     } else {
         authBtn.textContent = 'Login';
         dashboardBtn.classList.add('hidden');
-        saveContentBtn.classList.add('hidden');
     }
 }
 
@@ -178,24 +172,20 @@ async function handleLogout() {
 }
 
 async function handleSaveContent() {
-    if (!currentUser) return;
-
-    saveContentBtn.disabled = true;
-    saveContentBtn.textContent = 'Saving...';
+    if (!currentUser || !supabase) return;
 
     try {
         // Simple Markdown construction for saving
-        const studyGuide = studyGuideContent.innerHTML; // Note: Saving HTML for simplicity in this demo
-
+        const studyGuide = studyGuideContent.innerHTML; 
         await saveStudyMaterial(supabase, currentTitle, 'file.pdf', studyGuide, currentQuiz);
-        showToast('Saved to your dashboard!');
+        showToast('Study Guide auto-saved to your dashboard!');
     } catch (e) {
-        showToast(`Save failed: ${e.message}`);
-    } finally {
-        saveContentBtn.disabled = false;
-        saveContentBtn.textContent = 'Save';
-    }
+        console.error(`Auto-save failed: ${e.message}`);
+        showToast('Auto-save failed - check connection.');
+    } 
 }
+
+// ... unchanged functions ...
 
 async function showDashboard() {
     uploadSection.classList.add('hidden');
@@ -375,6 +365,12 @@ async function handleGenerate() {
 
         // Show save button if logged in
         updateAuthUI();
+
+        // Auto-save the content in the background
+        if (currentUser) {
+            showToast('Auto-saving...');
+            handleSaveContent(); // Background process
+        }
 
     } catch (error) {
         console.error(error);
