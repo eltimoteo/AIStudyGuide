@@ -91,31 +91,27 @@
 
         <!-- Content Section -->
         <section id="contentSection" class="content-section hidden">
-            <div class="content-header">
-                <div class="tabs">
-                    <button class="tab-btn active" data-tab="studyGuide">Study Guide</button>
-                    <button class="tab-btn" data-tab="quiz">Quiz</button>
-                </div>
+            <div class="content-header" style="justify-content: flex-end; border-bottom: none; margin-bottom: 0;">
                 <button id="saveContentBtn" class="btn btn-secondary hidden">
                     <span class="material-symbols-rounded">save</span> Save
                 </button>
             </div>
 
-            <div class="tab-content">
-                <!-- Study Guide Tab -->
-                <div id="studyGuide" class="tab-pane active">
+            <div class="side-by-side-layout">
+                <!-- Study Guide Panel (Left - 60%) -->
+                <div id="studyGuide" class="side-panel">
                     <div class="card study-guide-content" id="studyGuideContent">
                         <!-- Content will be injected here -->
                     </div>
                 </div>
 
-                <!-- Quiz Tab -->
-                <div id="quiz" class="tab-pane">
-                    <div class="quiz-container" id="quizContainer">
+                <!-- Quiz Panel (Right - 40%) -->
+                <div id="quiz" class="side-panel">
+                    <div class="quiz-container card" id="quizContainer">
                         <!-- Quiz will be injected here -->
                     </div>
-                    <div class="quiz-results hidden" id="quizResults">
-                        <div class="score-card">
+                    <div class="quiz-results hidden card" id="quizResults">
+                        <div class="score-card" style="border: none; padding: 20px;">
                             <div class="score-circle">
                                 <span id="scoreValue">0%</span>
                             </div>
@@ -123,7 +119,7 @@
                             <p id="scoreFeedback">Complete the quiz to get feedback.</p>
                         </div>
                         <div class="results-breakdown" id="resultsBreakdown"></div>
-                        <button id="retryQuizBtn" class="btn btn-secondary">Retry Quiz</button>
+                        <button id="retryQuizBtn" class="btn btn-secondary" style="width: 100%;">Retry Quiz</button>
                     </div>
                 </div>
             </div>

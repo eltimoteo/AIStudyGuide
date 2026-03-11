@@ -35,8 +35,6 @@ const loginModal = document.getElementById('loginModal');
 const closeLogin = document.getElementById('closeLogin');
 const googleSignInBtn = document.getElementById('googleSignInBtn');
 
-const tabButtons = document.querySelectorAll('.tab-btn');
-const tabPanes = document.querySelectorAll('.tab-pane');
 const fileInfo = document.getElementById('fileInfo');
 
 // State
@@ -96,19 +94,6 @@ function setupEventListeners() {
 
     // Generation (existing)
     generateBtn.addEventListener('click', handleGenerate);
-
-    // Navigation (existing)
-    tabButtons.forEach(btn => {
-        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-    });
-
-    window.addEventListener('geminiRateLimit', (e) => {
-        const seconds = Math.round(e.detail.delayMs / 1000);
-        const loadingText = document.getElementById('loadingText');
-        if (loadingText) {
-            loadingText.textContent = `API rate limit hit. Paused for ${seconds}s...`;
-        }
-    });
 }
 
 // Supabase Handling
@@ -254,9 +239,6 @@ function restoreSession(item) {
     studyGuideContent.innerHTML = item.study_guide_content;
     currentQuiz = item.quiz_data;
     renderQuiz(currentQuiz);
-
-    // Reset view
-    switchTab('studyGuide');
 }
 
 function showHome() {
@@ -561,15 +543,6 @@ function saveSettings() {
 
 function toggleApiKeyVisibility() {
     apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
-}
-
-function switchTab(tabId) {
-    tabButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
-    });
-    tabPanes.forEach(pane => {
-        pane.classList.toggle('active', pane.id === tabId);
-    });
 }
 
 function showToast(message) {
