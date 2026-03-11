@@ -1,21 +1,21 @@
 /* CSS Variables & Reset */
 :root {
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --secondary: #ec4899;
-    --background: #0f172a;
-    --surface: #1e293b;
-    --surface-glass: rgba(30, 41, 59, 0.7);
-    --text: #f8fafc;
-    --text-muted: #94a3b8;
-    --border: #334155;
-    --success: #22c55e;
+    --primary: #000000;
+    --primary-hover: #333333;
+    --secondary: #666666;
+    --background: #ffffff;
+    --surface: #ffffff;
+    --surface-glass: rgba(255, 255, 255, 0.9);
+    --text: #111111;
+    --text-muted: #666666;
+    --border: #eaeaea;
+    --success: #10b981;
     --error: #ef4444;
-    --radius: 16px;
-    --radius-sm: 8px;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --font-heading: 'Outfit', sans-serif;
+    --radius: 8px;
+    --radius-sm: 4px;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --font-heading: 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
 }
 
@@ -34,20 +34,9 @@ body {
     overflow-x: hidden;
 }
 
-/* Background Mesh Gradient */
+/* Background Mesh Gradient - Removed for Minimalist Design */
 .background-mesh {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background:
-        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
-    filter: blur(80px);
+    display: none;
 }
 
 /* Typography */
@@ -60,9 +49,8 @@ h4 {
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, #818cf8, #f472b6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text);
+    font-weight: 700;
 }
 
 /* Components */
@@ -87,14 +75,15 @@ h4 {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    color: white;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    background: var(--primary);
+    color: #ffffff;
+    box-shadow: none;
 }
 
 .btn-primary:not(:disabled):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+    transform: translateY(-1px);
+    background: var(--primary-hover);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary {
@@ -131,8 +120,8 @@ h4 {
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -217,6 +206,7 @@ h4 {
     font-size: 3rem;
     line-height: 1.1;
     margin-bottom: 16px;
+    color: var(--text);
 }
 
 .hero-text p {
@@ -227,20 +217,19 @@ h4 {
 }
 
 .dropzone {
-    background: var(--surface-glass);
+    background: #fafafa;
     border: 2px dashed var(--border);
     border-radius: var(--radius);
     padding: 60px;
     margin-bottom: 32px;
     cursor: pointer;
     transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
 }
 
 .dropzone:hover,
 .dropzone.dragover {
     border-color: var(--primary);
-    background: rgba(79, 70, 229, 0.05);
+    background: #f0f0f0;
 }
 
 .dropzone-content {
@@ -350,11 +339,12 @@ h4 {
 .study-guide-content h3 {
     margin-top: 24px;
     margin-bottom: 16px;
+    color: var(--text);
 }
 
 .study-guide-content p {
     margin-bottom: 16px;
-    color: #cbd5e1;
+    color: var(--text-muted);
 }
 
 .study-guide-content ul,
@@ -365,12 +355,12 @@ h4 {
 
 .study-guide-content li {
     margin-bottom: 8px;
-    color: #cbd5e1;
+    color: var(--text-muted);
 }
 
 /* Quiz */
 .quiz-question {
-    background: var(--surface-glass);
+    background: var(--surface);
     padding: 24px;
     border-radius: var(--radius);
     margin-bottom: 24px;
@@ -389,7 +379,7 @@ h4 {
 }
 
 .option-btn {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--surface);
     border: 1px solid var(--border);
     padding: 16px;
     border-radius: var(--radius-sm);
@@ -400,22 +390,22 @@ h4 {
 }
 
 .option-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #f8fafc;
 }
 
 .option-btn.selected {
     border-color: var(--primary);
-    background: rgba(79, 70, 229, 0.1);
+    background: #f1f5f9;
 }
 
 .option-btn.correct {
     border-color: var(--success);
-    background: rgba(34, 197, 94, 0.1);
+    background: #dcfce7;
 }
 
 .option-btn.incorrect {
     border-color: var(--error);
-    background: rgba(239, 68, 68, 0.1);
+    background: #fee2e2;
 }
 
 /* Quiz Results */
@@ -435,14 +425,15 @@ h4 {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    background: var(--primary);
+    color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
     font-weight: 700;
     margin: 0 auto 24px;
-    box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 /* Modal */
@@ -452,12 +443,11 @@ h4 {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    backdrop-filter: blur(4px);
 }
 
 .modal-content {
@@ -508,7 +498,7 @@ h4 {
 input[type="text"],
 input[type="password"] {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
+    background: #fafafa;
     border: 1px solid var(--border);
     padding: 12px 16px;
     border-radius: var(--radius-sm);
@@ -519,6 +509,7 @@ input[type="password"] {
 input:focus {
     outline: none;
     border-color: var(--primary);
+    background: #ffffff;
 }
 
 .icon-on-input {
@@ -553,8 +544,8 @@ input:focus {
     bottom: 24px;
     right: 24px;
     padding: 12px 24px;
-    background: var(--surface);
-    color: var(--text);
+    background: var(--text);
+    color: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-lg);
@@ -576,18 +567,19 @@ input:focus {
 
 /* Markdown Styles */
 strong {
-    color: #e2e8f0;
+    color: var(--text);
     font-weight: 600;
 }
 
 em {
-    color: #cbd5e1;
+    color: var(--text-muted);
 }
 
 code {
-    background: rgba(255, 255, 255, 0.1);
+    background: #f1f5f9;
     padding: 2px 4px;
     border-radius: 4px;
     font-family: monospace;
     font-size: 0.9em;
+    color: var(--text);
 }
