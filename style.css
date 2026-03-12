@@ -328,6 +328,41 @@ input[type="number"]:focus {
     margin-top: 18px; /* rough alignment with inputs since labels exist */
 }
 
+.page-previews {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px dashed var(--border);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.pdf-preview-canvas {
+    width: 120px;
+    height: 170px; /* Approximate A4 ratio */
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+    object-fit: contain;
+}
+
 /* Loading */
 .loading-state {
     display: flex;

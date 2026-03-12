@@ -94,7 +94,20 @@
                         <input type="number" id="endPage" min="1" value="1">
                     </div>
                 </div>
-                <p class="helper-text" style="margin-top: 12px; margin-bottom: 0;">Select which pages to analyze (max recommended: 30 pages).</p>
+
+                <!-- Page Previews -->
+                <div id="pagePreviews" class="page-previews hidden">
+                    <div class="preview-container">
+                        <span class="preview-label">Start Page</span>
+                        <canvas id="startPagePreview" class="pdf-preview-canvas"></canvas>
+                    </div>
+                    <div class="preview-container">
+                        <span class="preview-label">End Page</span>
+                        <canvas id="endPagePreview" class="pdf-preview-canvas"></canvas>
+                    </div>
+                </div>
+
+                <p class="helper-text" style="margin-top: 16px; margin-bottom: 0;">Select which pages to analyze (max recommended: 30 pages).</p>
             </div>
 
             <button id="generateBtn" class="btn btn-primary" disabled style="margin-top: 32px;">

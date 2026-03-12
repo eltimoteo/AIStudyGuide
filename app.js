@@ -39,6 +39,9 @@ const pageSelection = document.getElementById('pageSelection');
 const pageRangeInfo = document.getElementById('pageRangeInfo');
 const startPageInput = document.getElementById('startPage');
 const endPageInput = document.getElementById('endPage');
+const pagePreviews = document.getElementById('pagePreviews');
+const startPagePreview = document.getElementById('startPagePreview');
+const endPagePreview = document.getElementById('endPagePreview');
 
 // State
 let pdfText = '';
@@ -97,6 +100,10 @@ function setupEventListeners() {
 
     // Generation (existing)
     generateBtn.addEventListener('click', handleGenerate);
+    
+    // Previews
+    startPageInput.addEventListener('change', updatePreviews);
+    endPageInput.addEventListener('change', updatePreviews);
 }
 
 // Supabase Handling
@@ -277,6 +284,7 @@ function showHome() {
     uploadSection.classList.remove('hidden');
     
     if (pageSelection) pageSelection.classList.add('hidden');
+    if (pagePreviews) pagePreviews.classList.add('hidden');
     currentPdf = null;
     generateBtn.disabled = true;
     if (fileInfo) fileInfo.textContent = '';
@@ -321,6 +329,11 @@ async function processFile(file) {
             startPageInput.max = totalPages;
             endPageInput.max = totalPages;
             endPageInput.value = Math.min(totalPages, 20);
+            
+            if (pagePreviews) {
+                pagePreviews.classList.remove('hidden');
+                updatePreviews();
+            }
         }
 
         generateBtn.disabled = false;
@@ -331,6 +344,46 @@ async function processFile(file) {
         fileInfo.textContent = 'Error processing PDF';
         showToast('Error reading PDF. Please try another file.');
         generateBtn.textContent = 'Generate';
+    }
+}
+
+async function updatePreviews() {
+    if (!currentPdf) return;
+    
+    const start = parseInt(startPageInput.value, 10);
+    const end = parseInt(endPageInput.value, 10);
+    
+    if (!isNaN(start) && start >= 1 && start <= currentPdf.numPages) {
+        await renderPageToCanvas(start, startPagePreview);
+    }
+    
+    if (!isNaN(end) && end >= 1 && end <= currentPdf.numPages) {
+        await renderPageToCanvas(end, endPagePreview);
+    }
+}
+
+async function renderPageToCanvas(pageNum, canvas) {
+    try {
+        const page = await currentPdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.0 }); // Raw scale to get dimensions
+        
+        // We want our canvas to be high-res but scaled down by CSS
+        // Usually, rendering at scale 1.5 - 2.0 looks good on retina displays
+        const renderScale = 1.5;
+        const scaledViewport = page.getViewport({ scale: renderScale });
+        
+        const context = canvas.getContext('2d');
+        canvas.height = scaledViewport.height;
+        canvas.width = scaledViewport.width;
+        
+        const renderContext = {
+            canvasContext: context,
+            viewport: scaledViewport
+        };
+        
+        await page.render(renderContext).promise;
+    } catch (e) {
+        console.error(`Error rendering page ${pageNum}:`, e);
     }
 }
 
