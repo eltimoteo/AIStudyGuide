@@ -76,7 +76,28 @@
                 </div>
             </div>
 
-            <button id="generateBtn" class="btn btn-primary" disabled>
+            <!-- Page Selection UI -->
+            <div id="pageSelection" class="page-selection hidden">
+                <div class="page-info">
+                    <span class="material-symbols-rounded" style="color: var(--primary);">menu_book</span>
+                    <span id="pageRangeInfo">Total pages: 0</span>
+                </div>
+                
+                <div class="page-inputs">
+                    <div class="input-group">
+                        <label for="startPage">Start Page</label>
+                        <input type="number" id="startPage" min="1" value="1">
+                    </div>
+                    <span class="page-separator">to</span>
+                    <div class="input-group">
+                        <label for="endPage">End Page</label>
+                        <input type="number" id="endPage" min="1" value="1">
+                    </div>
+                </div>
+                <p class="helper-text" style="margin-top: 12px; margin-bottom: 0;">Select which pages to analyze (max recommended: 30 pages).</p>
+            </div>
+
+            <button id="generateBtn" class="btn btn-primary" disabled style="margin-top: 32px;">
                 <span class="material-symbols-rounded">auto_awesome</span>
                 Generate
             </button>

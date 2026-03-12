@@ -35,9 +35,14 @@ const closeLogin = document.getElementById('closeLogin');
 const googleSignInBtn = document.getElementById('googleSignInBtn');
 
 const fileInfo = document.getElementById('fileInfo');
+const pageSelection = document.getElementById('pageSelection');
+const pageRangeInfo = document.getElementById('pageRangeInfo');
+const startPageInput = document.getElementById('startPage');
+const endPageInput = document.getElementById('endPage');
 
 // State
 let pdfText = '';
+let currentPdf = null;
 let currentQuiz = [];
 let userAnswers = {};
 let supabase = null;
@@ -270,6 +275,11 @@ function showHome() {
     dashboardSection.classList.add('hidden');
     contentSection.classList.add('hidden');
     uploadSection.classList.remove('hidden');
+    
+    if (pageSelection) pageSelection.classList.add('hidden');
+    currentPdf = null;
+    generateBtn.disabled = true;
+    if (fileInfo) fileInfo.textContent = '';
 }
 
 // File Handling
@@ -299,32 +309,39 @@ async function processFile(file) {
 
     try {
         const arrayBuffer = await file.arrayBuffer();
-        pdfText = await extractTextFromPDF(arrayBuffer);
-
-        if (pdfText.length < 50) {
-            throw new Error('Could not extract enough text from this PDF.');
+        currentPdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        
+        const totalPages = currentPdf.numPages;
+        
+        // Show page selection UI
+        if (pageSelection) {
+            pageSelection.classList.remove('hidden');
+            pageRangeInfo.textContent = `Total pages: ${totalPages}`;
+            
+            startPageInput.max = totalPages;
+            endPageInput.max = totalPages;
+            endPageInput.value = Math.min(totalPages, 20);
         }
 
         generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate Study Material';
-        showToast('PDF processed successfully!');
+        generateBtn.textContent = 'Generate';
+        showToast('PDF loaded! Select pages to analyze.');
     } catch (error) {
         console.error(error);
         fileInfo.textContent = 'Error processing PDF';
         showToast('Error reading PDF. Please try another file.');
-        generateBtn.textContent = 'Generate Study Material';
+        generateBtn.textContent = 'Generate';
     }
 }
 
-async function extractTextFromPDF(arrayBuffer) {
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+async function extractTextFromPDF(pdf, startPage, endPage) {
     let fullText = '';
 
-    // Limit to first 20 pages to avoid hitting token limits for this demo
-    // You can adjust this based on needs
-    const maxPages = Math.min(pdf.numPages, 20);
+    // Bound check
+    const start = Math.max(1, startPage);
+    const end = Math.min(pdf.numPages, endPage);
 
-    for (let i = 1; i <= maxPages; i++) {
+    for (let i = start; i <= end; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
         const pageText = textContent.items.map(item => item.str).join(' ');
@@ -344,12 +361,33 @@ async function handleGenerate() {
         showToast('Please enter your Gemini API Key first.');
         return;
     }
+    
+    if (!currentPdf) {
+        showToast('Please upload a valid PDF first.');
+        return;
+    }
+
+    const startPage = parseInt(startPageInput.value, 10);
+    const endPage = parseInt(endPageInput.value, 10);
+    
+    if (isNaN(startPage) || isNaN(endPage) || startPage > endPage || startPage < 1 || endPage > currentPdf.numPages) {
+        showToast('Invalid page range selected.');
+        return;
+    }
 
     uploadSection.classList.add('hidden');
     loadingState.classList.remove('hidden');
-    document.getElementById('loadingText').textContent = 'Analyzing content with Gemini...';
+    document.getElementById('loadingText').textContent = 'Extracting text...';
 
     try {
+        pdfText = await extractTextFromPDF(currentPdf, startPage, endPage);
+        
+        if (pdfText.trim().length < 50) {
+            throw new Error('Could not extract enough text from the selected pages. Try selecting more reading-heavy pages.');
+        }
+        
+        document.getElementById('loadingText').textContent = 'Analyzing content with Gemini...';
+
         // Serial requests to avoid rate limits
         showToast('Generating Study Guide...');
         const guide = await generateStudyGuide(apiKey, model, pdfText);
