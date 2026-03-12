@@ -282,6 +282,7 @@ function showHome() {
     dashboardSection.classList.add('hidden');
     contentSection.classList.add('hidden');
     uploadSection.classList.remove('hidden');
+    uploadSection.classList.remove('file-loaded');
     
     if (pageSelection) pageSelection.classList.add('hidden');
     if (pagePreviews) pagePreviews.classList.add('hidden');
@@ -323,6 +324,7 @@ async function processFile(file) {
         
         // Show page selection UI
         if (pageSelection) {
+            uploadSection.classList.add('file-loaded'); // trigger UI shrink
             pageSelection.classList.remove('hidden');
             pageRangeInfo.textContent = `Total pages: ${totalPages}`;
             

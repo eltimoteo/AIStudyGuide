@@ -224,6 +224,36 @@ h4 {
     margin: 0 auto;
 }
 
+/* File Loaded States */
+.upload-section.file-loaded .hero-text {
+    display: none;
+}
+
+.upload-section.file-loaded .dropzone {
+    padding: 16px 24px;
+    margin-bottom: 24px;
+}
+
+.upload-section.file-loaded .dropzone-content {
+    flex-direction: row;
+    justify-content: center;
+    gap: 16px;
+}
+
+.upload-section.file-loaded .dropzone-content h3,
+.upload-section.file-loaded .dropzone-content p {
+    display: none;
+}
+
+.upload-section.file-loaded .icon-lg {
+    font-size: 24px;
+    margin-bottom: 0;
+}
+
+.upload-section.file-loaded .file-info {
+    margin-top: 0;
+}
+
 .dropzone {
     background: #fafafa;
     border: 2px dashed var(--border);
@@ -354,12 +384,13 @@ input[type="number"]:focus {
 }
 
 .pdf-preview-canvas {
-    width: 120px;
-    height: 170px; /* Approximate A4 ratio */
+    max-height: 50vh; /* Maximize screen space */
+    width: auto;
+    max-width: 100%;
     background: #ffffff;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-lg); /* Larger shadow for big image */
     object-fit: contain;
 }
 
